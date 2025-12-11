@@ -60,8 +60,16 @@ let appClient = null;
 let currentClientSource = null;
 
 const reqOptions = {
-    stock: [ "info","intraday","daily","nse_eq","nse_eq_hist","qresult","result","balance","cashflow","dividend","split","other" ],
-    index: [ "indices","nse_open","nse_preopen","nse_fno","nse_future","nse_bhav","nse_highlow" ]
+    
+    stock: [ 
+            "info", "intraday", "daily","nse_eq", "qresult", "result", "balance",
+    "cashflow", "dividend", "split", "other","stock_hist"
+         ],
+    index: [ 
+            "indices", "nse_open", "nse_preopen", "nse_fno","nse_fiidii","nse_events"
+    "nse_future", "nse_bhav", "nse_highlow","index_history","nse_largedeals","nse_most_active","largedeals_historical","nse_bulkdeals",
+    "nse_blockdeals","index_pe_pb_div","index_total_returns"
+    ]
 };
 
 // --- Initialize date & dropdowns ---
