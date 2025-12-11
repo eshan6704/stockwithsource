@@ -60,15 +60,15 @@ let appClient = null;
 let currentClientSource = null;
 
 const reqOptions = {
-    
     stock: [ 
-            "info", "intraday", "daily","nse_eq", "qresult", "result", "balance",
-    "cashflow", "dividend", "split", "other","stock_hist"
-         ],
+        "info", "intraday", "daily","nse_eq", "qresult", "result", "balance",
+        "cashflow", "dividend", "split", "other","stock_hist"
+    ],
     index: [ 
-            "indices", "nse_open", "nse_preopen", "nse_fno","nse_fiidii","nse_events"
-    "nse_future", "nse_bhav", "nse_highlow","index_history","nse_largedeals","nse_most_active","largedeals_historical","nse_bulkdeals",
-    "nse_blockdeals","index_pe_pb_div","index_total_returns"
+        "indices", "nse_open", "nse_preopen", "nse_fno","nse_fiidii","nse_events",
+        "nse_future", "nse_bhav", "nse_highlow","index_history","nse_largedeals",
+        "nse_most_active","largedeals_historical","nse_bulkdeals",
+        "nse_blockdeals","index_pe_pb_div","index_total_returns"
     ]
 };
 
@@ -84,12 +84,11 @@ function populateReqType(){
 setDefaultDate();
 populateReqType();
 
-// --- Backend URL control & client cleanup ---
+// --- Backend URL control ---
 function updateBackendURL() {
     const src = document.getElementById("sourceType").value;
     const input = document.getElementById("backendURL");
 
-    // Discard previous client immediately
     appClient = null;
     currentClientSource = null;
 
@@ -106,38 +105,31 @@ function updateBackendURL() {
 async function connectClient(){
     const src = document.getElementById("sourceType").value;
 
-    // --- Colab selected ---
     if(src === "colab"){
         const url = document.getElementById("backendURL").value.trim();
-        if(!url){
-            console.warn("Colab selected but backend URL is empty.");
-            return null;
-        }
+        if(!url) return null;
         if(appClient && currentClientSource === "colab") return appClient;
+
         try {
             appClient = await Client.connect(url);
             currentClientSource = "colab";
-            console.log("Connected to Colab backend.");
             return appClient;
         } catch(e){
-            console.error("Error connecting to Colab backend:", e);
             appClient = null;
             currentClientSource = null;
             return null;
         }
     }
 
-    // --- HF selected ---
     if(src === "hf"){
         const url = "eshan6704/backend";
         if(appClient && currentClientSource === "hf") return appClient;
+
         try {
             appClient = await Client.connect(url);
             currentClientSource = "hf";
-            console.log("Connected to HF backend.");
             return appClient;
         } catch(e){
-            console.error("Error connecting to HF backend:", e);
             appClient = null;
             currentClientSource = null;
             return null;
@@ -216,15 +208,25 @@ window.fetchNow = async function(){
     updateSideDisplay();
 };
 
-// --- Mode & view toggle ---
+// --- Mode toggle ---
 window.setMode = function(mode){
     currentMode = mode;
+
     document.getElementById("btnStock").classList.toggle("active", mode==="stock");
     document.getElementById("btnIndex").classList.toggle("active", mode==="index");
+
     populateReqType();
+
+    // ✔ DEFAULT SYMBOL WHEN INDEX SELECTED
+    if(mode === "index"){
+        document.getElementById("symbolInput").value = "NIFTY 50";
+    }
+
     document.getElementById("backendDiv").innerHTML="<h3>Backend Output</h3>";
     document.getElementById("frontendDiv").innerHTML="<h3>Frontend Extracted Tables</h3><p>No tables yet.</p>";
 };
+
+// --- Side toggle ---
 window.setSide = function(side){
     currentSide = side; updateSideDisplay();
 };
@@ -235,7 +237,9 @@ function updateSideDisplay(){
     document.getElementById("frontendDiv").style.display = (currentSide==="frontend")?"block":"none";
 }
 
-document.getElementById("symbolInput").addEventListener("keypress", e=>{if(e.key==="Enter") fetchNow();});
+document.getElementById("symbolInput").addEventListener("keypress", e=>{
+    if(e.key==="Enter") fetchNow();
+});
 
 setMode("stock");
 updateSideDisplay();
