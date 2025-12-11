@@ -12,40 +12,40 @@
         }
         .active { background:#00aaff; color:white; }
         #backendDiv, #frontendDiv {
-            padding:10px; background:#fff; margin:6px; border-radius:6px; box-shadow:0 0 6px rgba(0,0,0,0.1); max-height:calc(100vh - 60px); overflow-y:auto; }
+            padding:10px; background:#fff; margin:6px; border-radius:6px; 
+            box-shadow:0 0 6px rgba(0,0,0,0.1); max-height:calc(100vh - 60px); overflow-y:auto;
+        }
         table { border-collapse:collapse; width:100%; margin:6px 0; font-size:12px; }
         table, th, td { border:1px solid #aaa; }
         th { background:#00aaff; color:white; padding:4px; }
         td { padding:4px; }
-        #statusBox { margin-left:auto; font-size:12px; background:#444; padding:2px 6px; border-radius:4px; color:#fff; max-width:400px; overflow-x:auto; white-space:nowrap; }
+        #statusBox {
+            margin-left:auto; font-size:12px; background:#444; padding:2px 6px;
+            border-radius:4px; color:#fff; max-width:400px; overflow-x:auto; white-space:nowrap;
+        }
     </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <!-- Mode -->
     <button id="btnStock" class="active" onclick="setMode('stock')">Stock</button>
     <button id="btnIndex" onclick="setMode('index')">Index</button>
 
-    <!-- Inputs -->
     <input id="symbolInput" type="text" value="ITC" style="width:80px;">
-    <select id="reqType" style="width:100px"></select>
+    <select id="reqType" style="width:120px"></select>
     <input id="dateInput" type="date" style="width:110px;">
     <button id="fetchBtn" onclick="fetchNow()" style="background:#2196f3;color:white;">Fetch</button>
 
-    <!-- Backend source -->
     <select id="sourceType" style="width:100px" onchange="updateBackendURL()">
         <option value="colab">Colab</option>
         <option value="hf">HF</option>
     </select>
     <input id="backendURL" type="text" placeholder="Backend URL" style="width:250px;">
 
-    <!-- Output view toggle -->
     <button id="btnBackend" class="active" onclick="setSide('backend')">Backend</button>
     <button id="btnFrontend" onclick="setSide('frontend')">Frontend</button>
 
-    <!-- Status -->
-    <div id="statusBox">stock,info,ITC,09-12-2025 | Colab | </div>
+    <div id="statusBox">stock,info,ITC | Colab | </div>
 </div>
 
 <div id="backendDiv"><h3>Backend Output</h3></div>
@@ -72,19 +72,24 @@ const reqOptions = {
     ]
 };
 
-// --- Initialize date & dropdowns ---
+// ---------------- DEFAULT DATE ----------------
 function setDefaultDate(){
-    const d = new Date(); d.setDate(d.getDate()-1);
+    const d = new Date();
+    d.setDate(d.getDate() - 1);   // yesterday
     document.getElementById("dateInput").value = d.toISOString().split("T")[0];
 }
+setDefaultDate();
+
+// ---------------- POPULATE DROPDOWN ----------------
 function populateReqType(){
     const dropdown = document.getElementById("reqType");
-    dropdown.innerHTML = reqOptions[currentMode].map(x=>`<option value="${x}">${x}</option>`).join('');
+    dropdown.innerHTML = reqOptions[currentMode]
+        .map(x => `<option value="${x}">${x}</option>`)
+        .join('');
 }
-setDefaultDate();
 populateReqType();
 
-// --- Backend URL control ---
+// ---------------- BACKEND URL CONTROL ----------------
 function updateBackendURL() {
     const src = document.getElementById("sourceType").value;
     const input = document.getElementById("backendURL");
@@ -101,13 +106,14 @@ function updateBackendURL() {
     }
 }
 
-// --- Connect Gradio client ---
+// ---------------- CONNECT CLIENT ----------------
 async function connectClient(){
     const src = document.getElementById("sourceType").value;
 
     if(src === "colab"){
         const url = document.getElementById("backendURL").value.trim();
         if(!url) return null;
+
         if(appClient && currentClientSource === "colab") return appClient;
 
         try {
@@ -116,7 +122,6 @@ async function connectClient(){
             return appClient;
         } catch(e){
             appClient = null;
-            currentClientSource = null;
             return null;
         }
     }
@@ -131,7 +136,6 @@ async function connectClient(){
             return appClient;
         } catch(e){
             appClient = null;
-            currentClientSource = null;
             return null;
         }
     }
@@ -139,7 +143,7 @@ async function connectClient(){
     return null;
 }
 
-// --- Status update ---
+// ---------------- STATUS UPDATE ----------------
 function updateStatus(req_type, symbol, date){
     const src = document.getElementById("sourceType").value;
     const url = (src==="hf")?"eshan6704/backend":document.getElementById("backendURL").value.trim();
@@ -147,36 +151,40 @@ function updateStatus(req_type, symbol, date){
     document.getElementById("statusBox").innerText = `${currentMode},${req_type},${symbol},${date} | ${srcLabel} | ${url}`;
 }
 
-// --- Fetch from backend ---
+// ---------------- FETCH BACKEND ----------------
 async function fetchFromBackend(mode, req_type, name, date){
     if(!appClient) await connectClient();
     if(!appClient) return ["<p style='color:red;'>Unable to connect to backend</p>"];
 
     const src = document.getElementById("sourceType").value;
+
     try{
         let result;
-        if(src==="hf"){
+        if(src === "hf"){
             result = await appClient.predict("/fetch_data",[mode, req_type, name, date]);
         } else {
             result = await appClient.predict("/fetch_data",{mode, req_type, name, date_str:date});
         }
 
         if(!result || !result.data) return ["<p>No data returned</p>"];
+
         if(Array.isArray(result.data[0])) return result.data[0];
-        if(typeof result.data[0]==="string") return [result.data[0]];
+        if(typeof result.data[0] === "string") return [result.data[0]];
         return ["<p>Unexpected data format</p>"];
+
     } catch(err){
         return [`<p style='color:red;'>Backend error: ${err.message}</p>`];
     }
 }
 
-// --- Fetch button ---
+// ---------------- FETCH BUTTON ----------------
 window.fetchNow = async function(){
     const name = document.getElementById("symbolInput").value;
     const req_type = document.getElementById("reqType").value;
     const rawDate = document.getElementById("dateInput").value;
     const date = rawDate.split("-").reverse().join("-");
-    updateStatus(req_type,name,date);
+
+    updateStatus(req_type, name, date);
 
     const backendDiv = document.getElementById("backendDiv");
     const frontendDiv = document.getElementById("frontendDiv");
@@ -184,6 +192,7 @@ window.fetchNow = async function(){
     frontendDiv.innerHTML = "<h3>Frontend Extracted Tables</h3>";
 
     const blocks = await fetchFromBackend(currentMode, req_type, name, date);
+
     const fragBackend = document.createDocumentFragment();
     const fragTables = document.createDocumentFragment();
 
@@ -204,11 +213,13 @@ window.fetchNow = async function(){
     backendDiv.appendChild(fragBackend);
     frontendDiv.appendChild(fragTables);
 
-    if(!frontendDiv.querySelector("table")) frontendDiv.innerHTML += "<p>No tables found.</p>";
+    if(!frontendDiv.querySelector("table"))
+        frontendDiv.innerHTML += "<p>No tables found.</p>";
+
     updateSideDisplay();
 };
 
-// --- Mode toggle ---
+// ---------------- MODE SWITCH ----------------
 window.setMode = function(mode){
     currentMode = mode;
 
@@ -217,7 +228,6 @@ window.setMode = function(mode){
 
     populateReqType();
 
-    // ✔ DEFAULT SYMBOL WHEN INDEX SELECTED
     if(mode === "index"){
         document.getElementById("symbolInput").value = "NIFTY 50";
     }
@@ -226,10 +236,12 @@ window.setMode = function(mode){
     document.getElementById("frontendDiv").innerHTML="<h3>Frontend Extracted Tables</h3><p>No tables yet.</p>";
 };
 
-// --- Side toggle ---
+// ---------------- VIEW SWITCH ----------------
 window.setSide = function(side){
-    currentSide = side; updateSideDisplay();
+    currentSide = side;
+    updateSideDisplay();
 };
+
 function updateSideDisplay(){
     document.getElementById("btnBackend").classList.toggle("active", currentSide==="backend");
     document.getElementById("btnFrontend").classList.toggle("active", currentSide==="frontend");
