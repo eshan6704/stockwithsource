@@ -75,7 +75,7 @@ const reqOptions = {
 // ---------------- DEFAULT DATE ----------------
 function setDefaultDate(){
     const d = new Date();
-    d.setDate(d.getDate() - 1);   // yesterday
+    d.setDate(d.getDate() - 1);
     document.getElementById("dateInput").value = d.toISOString().split("T")[0];
 }
 setDefaultDate();
@@ -146,8 +146,8 @@ async function connectClient(){
 // ---------------- STATUS UPDATE ----------------
 function updateStatus(req_type, symbol, date){
     const src = document.getElementById("sourceType").value;
-    const url = (src==="hf")?"eshan6704/backend":document.getElementById("backendURL").value.trim();
-    const srcLabel = (src==="colab")?"Colab":"Hugging Face";
+    const url = (src==="hf") ? "eshan6704/backend" : document.getElementById("backendURL").value.trim();
+    const srcLabel = (src==="colab") ? "Colab" : "Hugging Face";
     document.getElementById("statusBox").innerText = `${currentMode},${req_type},${symbol},${date} | ${srcLabel} | ${url}`;
 }
 
@@ -228,9 +228,13 @@ window.setMode = function(mode){
 
     populateReqType();
 
+    // FIX ADDED ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
     if(mode === "index"){
         document.getElementById("symbolInput").value = "NIFTY 50";
+    } else {
+        document.getElementById("symbolInput").value = "ITC";   // default for stock
     }
+    // FIX END ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
     document.getElementById("backendDiv").innerHTML="<h3>Backend Output</h3>";
     document.getElementById("frontendDiv").innerHTML="<h3>Frontend Extracted Tables</h3><p>No tables yet.</p>";
@@ -245,8 +249,8 @@ window.setSide = function(side){
 function updateSideDisplay(){
     document.getElementById("btnBackend").classList.toggle("active", currentSide==="backend");
     document.getElementById("btnFrontend").classList.toggle("active", currentSide==="frontend");
-    document.getElementById("backendDiv").style.display = (currentSide==="backend")?"block":"none";
-    document.getElementById("frontendDiv").style.display = (currentSide==="frontend")?"block":"none";
+    document.getElementById("backendDiv").style.display = (currentSide==="backend") ? "block" : "none";
+    document.getElementById("frontendDiv").style.display = (currentSide==="frontend") ? "block" : "none";
 }
 
 document.getElementById("symbolInput").addEventListener("keypress", e=>{
