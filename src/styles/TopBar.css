@@ -1,0 +1,56 @@
+.top-bar {
+  display: flex;
+  align-items: center;
+  background: #222;
+  padding: 4px 6px;
+  color: white;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.top-bar input,
+.top-bar select,
+.top-bar button {
+  height: 28px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.top-bar button {
+  background: #555;
+  color: white;
+  transition: background 0.2s;
+}
+
+.top-bar button:hover {
+  background: #666;
+}
+
+.top-bar button.active {
+  background: #00aaff;
+  color: white;
+}
+
+.top-bar .fetch-btn {
+  background: #2196f3;
+  color: white;
+}
+
+.top-bar .fetch-btn:hover {
+  background: #1976d2;
+}
+
+.status-box {
+  margin-left: auto;
+  font-size: 12px;
+  background: #444;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #fff;
+  max-width: 400px;
+  overflow-x: auto;
+  white-space: nowrap;
+}

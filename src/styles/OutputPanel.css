@@ -1,0 +1,48 @@
+.output-panel {
+  padding: 10px;
+  background: #fff;
+  margin: 6px;
+  border-radius: 6px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+  max-height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.output-panel h3 {
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.output-panel table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 6px 0;
+  font-size: 12px;
+}
+
+.output-panel table,
+.output-panel th,
+.output-panel td {
+  border: 1px solid #aaa;
+}
+
+.output-panel th {
+  background: #00aaff;
+  color: white;
+  padding: 4px;
+}
+
+.output-panel td {
+  padding: 4px;
+}
+
+.output-panel hr {
+  margin: 10px 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+.output-panel p {
+  color: #666;
+  font-size: 14px;
+}
